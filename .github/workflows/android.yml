@@ -1,0 +1,16 @@
+name: Godot Android build
+on: [push, pull_request]
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.3.0
+          use-dotnet: false
+          include-export-templates: true
+      - name: Validate project
+        run: godot --headless --path . --editor --quit
+      - name: Export Android APK
+        run: godot --headless --path . --export-debug "Android" build/desert-shadows.apk

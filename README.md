@@ -4,7 +4,7 @@ An original, open source Android starter for a real time isometric stealth tacti
 
 ## Current prototype
 
-The Godot 4 project contains a generated asset free test level, isometric diamond grid, controllable Cooper and McCoy prototypes, character switching, a guard alert loop, objective interaction, and a JSON checkpoint save. The drawing code is intentionally original and uses no copyrighted game files.
+The Godot 4 project contains a generated asset free test level, isometric diamond grid, controllable Cooper and McCoy prototypes, character switching, a guard alert loop, objective interaction, a JSON checkpoint save, touch buttons, a virtual joystick, and two prototype abilities. The drawing code is intentionally original and uses no copyrighted game files.
 
 ## Run and export
 
@@ -13,7 +13,7 @@ The Godot 4 project contains a generated asset free test level, isometric diamon
 3. Press **Play**. Desktop controls are WASD, Space, E, and F5.
 4. Install the Godot Android export templates, set an Android SDK, then export an APK or AAB. Set the project minimum Android API to 24 in the export preset.
 
-Android touch UI, navigation, richer stealth, abilities, missions, and original art are planned next.
+Navigation, richer stealth, missions, and original art are planned next.
 
 ## Legal
 

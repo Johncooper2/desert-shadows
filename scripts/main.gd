@@ -9,7 +9,7 @@ var enemy := Vector2(880, 270)
 var enemy_alert := 0.0
 var objective_done := false
 var message := "Reach the marked supply crate."
-var camera_offset := Vector2.ZERO
+var ability_message := ""
 
 func _ready() -> void:
 	_load_game()
@@ -29,7 +29,8 @@ func _process(delta: float) -> void:
 		message = "Objective complete. Press F5 to save."
 	if Input.is_action_just_pressed("save_game"):
 		_save_game()
-	message = message if objective_done else message
+	if Input.is_action_just_pressed("ability"):
+		_use_ability()
 	_enemy_tick(delta)
 	queue_redraw()
 
@@ -70,13 +71,22 @@ func _draw_hud() -> void:
 	draw_rect(Rect2(18, 18, 410, 104), Color(0.04, 0.07, 0.09, 0.88), true)
 	draw_string(ThemeDB.fallback_font, Vector2(35, 48), "DESERT SHADOWS  •  TEST MISSION", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f0c674"))
 	draw_string(ThemeDB.fallback_font, Vector2(35, 75), message, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("e8edf0"))
-	draw_string(ThemeDB.fallback_font, Vector2(35, 101), "WASD move   SPACE switch   E interact   F5 save", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("a6b7b8"))
-	draw_string(ThemeDB.fallback_font, Vector2(1030, 680), "Touch: use an on-screen gamepad when exporting", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("a6b7b8"))
+	draw_string(ThemeDB.fallback_font, Vector2(35, 101), "WASD move   SPACE switch   E interact   Q ability   F5 save", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("a6b7b8"))
+	if ability_message != "":
+		draw_string(ThemeDB.fallback_font, Vector2(520, 650), ability_message, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f0c674"))
 
 func _save_game() -> void:
 	var file := FileAccess.open("user://checkpoint.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify({"hero": hero, "partner": partner, "active": active_character, "objective": objective_done}))
 	message = "Checkpoint saved."
+
+func _use_ability() -> void:
+	if active_character == 0:
+		ability_message = "Cooper: silent step active"
+		enemy_alert = max(enemy_alert - 1.5, 0.0)
+	else:
+		ability_message = "McCoy: decoy syringe thrown"
+		enemy_alert = 0.0
 
 func _load_game() -> void:
 	if not FileAccess.file_exists("user://checkpoint.json"):

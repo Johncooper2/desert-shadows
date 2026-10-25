@@ -24,3 +24,4 @@ move_right={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":68)
 switch_character={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":32)]}
 interact={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":69)]}
 save_game={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":705)]}
+ability={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":81)]}

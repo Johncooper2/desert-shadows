@@ -7,6 +7,8 @@ var partner := Vector2(540, 430)
 var active_character := 0
 var enemy := Vector2(880, 270)
 var enemy_alert := 0.0
+var enemy_patrol_target := Vector2(1030, 330)
+var enemy_can_see := false
 var objective_done := false
 var message := "Reach the marked supply crate."
 var ability_message := ""
@@ -36,12 +38,25 @@ func _process(delta: float) -> void:
 
 func _enemy_tick(delta: float) -> void:
 	var controlled := hero if active_character == 0 else partner
-	if enemy.distance_to(controlled) < 190:
+	enemy_can_see = _has_line_of_sight(enemy, controlled)
+	if enemy_can_see and enemy.distance_to(controlled) < 240:
 		enemy_alert = min(enemy_alert + delta, 3.0)
 	else:
 		enemy_alert = max(enemy_alert - delta, 0.0)
 	if enemy_alert > 0.0:
 		enemy += enemy.direction_to(controlled) * 22.0 * delta
+	else:
+		if enemy.distance_to(enemy_patrol_target) < 12.0:
+			enemy_patrol_target = Vector2(880, 270) if enemy_patrol_target.x > 900 else Vector2(1030, 330)
+		enemy += enemy.direction_to(enemy_patrol_target) * 16.0 * delta
+
+func _has_line_of_sight(from: Vector2, to: Vector2) -> bool:
+	for obstacle in [Rect2(370, 180, 170, 50), Rect2(760, 430, 180, 55), Rect2(950, 150, 70, 170)]:
+		if Geometry2D.segment_intersects_segment(from, to, obstacle.position, obstacle.position + Vector2(obstacle.size.x, 0)) != null:
+			return false
+		if Geometry2D.segment_intersects_segment(from, to, obstacle.position + Vector2(0, obstacle.size.y), obstacle.position + obstacle.size) != null:
+			return false
+	return true
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, Vector2(1280, 720)), Color("18222a"))
@@ -59,6 +74,8 @@ func _draw() -> void:
 	_draw_actor(hero, Color("d5a84f"), "COOPER", active_character == 0)
 	_draw_actor(partner, Color("6eb6c9"), "MCCOY", active_character == 1)
 	_draw_actor(enemy, Color("b94c4c"), "GUARD", false)
+	if enemy_can_see:
+		draw_line(enemy, hero if active_character == 0 else partner, Color(0.85, 0.25, 0.22, 0.28), 3.0)
 	_draw_hud()
 
 func _draw_actor(pos: Vector2, color: Color, label: String, selected: bool) -> void:
@@ -77,7 +94,7 @@ func _draw_hud() -> void:
 
 func _save_game() -> void:
 	var file := FileAccess.open("user://checkpoint.json", FileAccess.WRITE)
-	file.store_string(JSON.stringify({"hero": hero, "partner": partner, "active": active_character, "objective": objective_done}))
+	file.store_string(JSON.stringify({"hero_x": hero.x, "hero_y": hero.y, "partner_x": partner.x, "partner_y": partner.y, "active": active_character, "objective": objective_done}))
 	message = "Checkpoint saved."
 
 func _use_ability() -> void:
@@ -94,8 +111,8 @@ func _load_game() -> void:
 	var file := FileAccess.open("user://checkpoint.json", FileAccess.READ)
 	var data = JSON.parse_string(file.get_as_text())
 	if data is Dictionary:
-		hero = Vector2(data.get("hero", hero))
-		partner = Vector2(data.get("partner", partner))
+		hero = Vector2(float(data.get("hero_x", hero.x)), float(data.get("hero_y", hero.y)))
+		partner = Vector2(float(data.get("partner_x", partner.x)), float(data.get("partner_y", partner.y)))
 		active_character = int(data.get("active", active_character))
 		objective_done = bool(data.get("objective", objective_done))
 		message = "Checkpoint loaded."
